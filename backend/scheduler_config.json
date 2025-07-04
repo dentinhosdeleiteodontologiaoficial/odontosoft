@@ -1,0 +1,20 @@
+{
+  "confirmation_hours_before": 24,
+  "reminder_days_after": [30, 90, 180],
+  "working_hours": {
+    "start": 8,
+    "end": 18
+  },
+  "working_days": [0, 1, 2, 3, 4],
+  "retry_attempts": 3,
+  "retry_delay": 300,
+  "notifications": {
+    "confirmation_message_template": "🦷 *Confirmação de Consulta - Dentinhos de Leite*\n\nOlá {name}!\n\nSua consulta está agendada para:\n📅 Data: {date}\n🕐 Horário: {time}\n\nPor favor, confirme sua presença respondendo:\n✅ *SIM* - para confirmar\n❌ *NÃO* - para cancelar\n🔄 *REAGENDAR* - para remarcar\n\nAguardamos sua confirmação! 😊",
+    "reminder_message_template": "🦷 *Lembrete de Retorno - Dentinhos de Leite*\n\nOlá {name}!\n\nÉ hora do retorno para {return_type}!\n\nPara agendar sua consulta:\n📞 Entre em contato conosco\n💬 Responda esta mensagem\n🌐 Acesse nosso site\n\nCuidar dos dentinhos é muito importante! 😊"
+  },
+  "logs": {
+    "retention_days": 90,
+    "level": "INFO"
+  }
+}
+
