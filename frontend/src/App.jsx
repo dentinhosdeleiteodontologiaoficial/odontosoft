@@ -811,7 +811,12 @@ function App( ) {
       <DialogFooter>
         <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
         <Button onClick={addAppointment}>Salvar Agendamento</Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>  
-</div>     
+    
+              </DialogFooter>
+        </DialogContent>
+      </Dialog> // <-- ESTA LINHA ESTÁ FALTANDO
+    </div> // <-- ESTA LINHA ESTÁ FALTANDO
+  )
+}
+
+export default App
