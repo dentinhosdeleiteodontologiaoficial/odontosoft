@@ -5,7 +5,7 @@ module.exports = {
     './pages/**/*.{js,jsx}',
     './components/**/*.{js,jsx}',
     './app/**/*.{js,jsx}',
-    './src/**/*.{js,jsx}', // Esta linha é crucial para o shadcn/ui
+    './src/**/*.{js,jsx}',
   ],
   prefix: "",
   theme: {
@@ -73,5 +73,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [], // Removido require("tailwindcss-animate")
 }
