@@ -1,5 +1,3 @@
-// frontend/src/App.jsx
-
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
@@ -17,6 +15,14 @@ import { cn } from '@/lib/utils.js'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 import { Calendar as CalendarIcon } from 'lucide-react'
 
+// Importações do FullCalendar
+import FullCalendar from '@fullcalendar/react'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
+import listPlugin from '@fullcalendar/list'
+import ptBrLocale from '@fullcalendar/core/locales/pt-br'
+
 // URL do backend - ajuste conforme necessário
 const API_BASE_URL = 'https://odontosoft-backend.onrender.com' // Use a sua URL real do backend no Render
 
@@ -33,14 +39,14 @@ function App( ) {
     email: '',
     responsible_name: '',
     responsible_phone: '',
-    responsible_cpf: '', // Novo campo
-    address_zip_code: '', // Novo campo
-    address_street: '', // Novo campo
-    address_number: '', // Novo campo
-    address_complement: '', // Novo campo
-    address_neighborhood: '', // Novo campo
-    address_city: '', // Novo campo
-    address_state: '' // Novo campo
+    responsible_cpf: '',
+    address_zip_code: '',
+    address_street: '',
+    address_number: '',
+    address_complement: '',
+    address_neighborhood: '',
+    address_city: '',
+    address_state: ''
   })
 
   // Estados para o modal de agendamento
@@ -53,75 +59,10 @@ function App( ) {
     treatment_type: ''
   })
 
-  // Função para buscar endereço pelo CEP
-  const fetchAddressByZipCode = async (zipCode) => {
-    // Remove caracteres não numéricos do CEP
-    const cleanZipCode = zipCode.replace(/\D/g, '');
-    if (cleanZipCode.length !== 8) {
-      return; // CEP inválido, não faz a busca
-    }
+  // Estado para os eventos do FullCalendar
+  const [calendarEvents, setCalendarEvents] = useState([])
 
-    try {
-      const response = await fetch(`https://viacep.com.br/ws/${cleanZipCode}/json/` );
-      const data = await response.json();
-
-      if (data.erro) {
-        alert('CEP não encontrado.');
-        return;
-      }
-
-      setNewPatient(prev => ({
-        ...prev,
-        address_street: data.logradouro || '',
-        address_neighborhood: data.bairro || '',
-        address_city: data.localidade || '',
-        address_state: data.uf || '',
-        // O número e complemento devem ser preenchidos manualmente
-      }));
-    } catch (error) {
-      console.error('Erro ao buscar CEP:', error);
-      alert('Erro ao buscar CEP. Verifique o número e tente novamente.');
-    }
-  }
-
-  const addPatient = async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/patients`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newPatient),
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        alert('Paciente adicionado com sucesso!')
-        setNewPatient({ // Resetar formulário
-          name: '',
-          email: '',
-          responsible_name: '',
-          responsible_phone: '',
-          responsible_cpf: '',
-          address_zip_code: '',
-          address_street: '',
-          address_number: '',
-          address_complement: '',
-          address_neighborhood: '',
-          address_city: '',
-          address_state: ''
-        })
-        loadPatients() // Recarregar lista de pacientes
-      } else {
-        const errorData = await response.json();
-        alert(`Erro ao adicionar paciente: ${errorData.message || response.statusText}`);
-      }
-    } catch (error) {
-      console.error('Erro ao adicionar paciente:', error)
-      alert('Erro ao adicionar paciente')
-    }
-  }
-
+  // Funções de carregamento de dados
   const loadPatients = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/patients`)
@@ -139,7 +80,22 @@ function App( ) {
       const response = await fetch(`${API_BASE_URL}/appointments`)
       if (response.ok) {
         const data = await response.json()
+        // Mapear os agendamentos para o formato de eventos do FullCalendar
+        const formattedEvents = data.appointments.map(appt => ({
+          id: appt.id,
+          title: `${appt.patient_name} - ${appt.treatment_type || 'Consulta'}`,
+          start: appt.start_time,
+          end: appt.end_time,
+          allDay: false,
+          extendedProps: {
+            patient_id: appt.patient_id,
+            notes: appt.notes,
+            status: appt.status,
+            treatment_type: appt.treatment_type
+          }
+        }))
         setAppointments(data.appointments)
+        setCalendarEvents(formattedEvents)
       }
     } catch (error) {
       console.error('Erro ao carregar agendamentos:', error)
@@ -158,6 +114,60 @@ function App( ) {
     }
   }
 
+  // Funções de manipulação de dados
+  const fetchAddressByZipCode = async (zipCode) => {
+    const cleanZipCode = zipCode.replace(/\D/g, '');
+    if (cleanZipCode.length !== 8) {
+      return;
+    }
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cleanZipCode}/json/` );
+      const data = await response.json();
+      if (data.erro) {
+        alert('CEP não encontrado.');
+        return;
+      }
+      setNewPatient(prev => ({
+        ...prev,
+        address_street: data.logradouro || '',
+        address_neighborhood: data.bairro || '',
+        address_city: data.localidade || '',
+        address_state: data.uf || '',
+      }));
+    } catch (error) {
+      console.error('Erro ao buscar CEP:', error);
+      alert('Erro ao buscar CEP. Verifique o número e tente novamente.');
+    }
+  }
+
+  const addPatient = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/patients`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPatient),
+      })
+      if (response.ok) {
+        const result = await response.json()
+        alert('Paciente adicionado com sucesso!')
+        setNewPatient({
+          name: '', email: '', responsible_name: '', responsible_phone: '', responsible_cpf: '',
+          address_zip_code: '', address_street: '', address_number: '', address_complement: '',
+          address_neighborhood: '', address_city: '', address_state: ''
+        })
+        loadPatients()
+      } else {
+        const errorData = await response.json();
+        alert(`Erro ao adicionar paciente: ${errorData.message || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar paciente:', error)
+      alert('Erro ao adicionar paciente')
+    }
+  }
+
   const sendConfirmation = async (appointmentId) => {
     try {
       const response = await fetch(`${API_BASE_URL}/whatsapp/send-confirmation`, {
@@ -167,7 +177,6 @@ function App( ) {
         },
         body: JSON.stringify({ appointment_id: appointmentId }),
       })
-
       if (response.ok) {
         const result = await response.json()
         alert('Confirmação enviada via WhatsApp!')
@@ -229,6 +238,88 @@ function App( ) {
     loadAppointments()
     loadBudgets()
   }, [])
+
+  // Funções de callback do FullCalendar
+  const handleDateClick = (arg) => {
+    // Abre o modal de agendamento e pré-preenche a data/hora clicada
+    setNewAppointment(prev => ({
+      ...prev,
+      start_time: arg.date,
+      end_time: arg.date // Pode ajustar a duração padrão aqui
+    }))
+    setIsAppointmentModalOpen(true)
+  }
+
+  const handleEventClick = (clickInfo) => {
+    // Exemplo: Exibir detalhes do evento ou abrir modal de edição
+    alert(`Evento: ${clickInfo.event.title}\nPaciente ID: ${clickInfo.event.extendedProps.patient_id}\nStatus: ${clickInfo.event.extendedProps.status}`)
+    // Você pode abrir um modal de edição aqui, preenchendo com clickInfo.event.extendedProps
+  }
+
+  const handleEventDrop = async (dropInfo) => {
+    // Atualiza o agendamento no backend
+    if (!window.confirm(`Tem certeza que deseja mover "${dropInfo.event.title}" para ${dropInfo.event.start.toLocaleString()}?`)) {
+      dropInfo.revert()
+      return
+    }
+
+    try {
+      const updatedAppointment = {
+        start_time: dropInfo.event.start.toISOString(),
+        end_time: dropInfo.event.end.toISOString(),
+        // Outros campos que podem ser atualizados
+      }
+      const response = await fetch(`${API_BASE_URL}/appointments/${dropInfo.event.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedAppointment),
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar agendamento no backend')
+      }
+      alert('Agendamento atualizado com sucesso!')
+      loadAppointments()
+    } catch (error) {
+      console.error('Erro ao mover agendamento:', error)
+      alert('Erro ao mover agendamento. Revertendo...')
+      dropInfo.revert()
+    }
+  }
+
+  const handleEventResize = async (resizeInfo) => {
+    // Atualiza a duração do agendamento no backend
+    if (!window.confirm(`Tem certeza que deseja redimensionar "${resizeInfo.event.title}" para ${resizeInfo.event.end.toLocaleString()}?`)) {
+      resizeInfo.revert()
+      return
+    }
+
+    try {
+      const updatedAppointment = {
+        start_time: resizeInfo.event.start.toISOString(),
+        end_time: resizeInfo.event.end.toISOString(),
+      }
+      const response = await fetch(`${API_BASE_URL}/appointments/${resizeInfo.event.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedAppointment),
+      })
+
+      if (!response.ok) {
+        throw new Error('Erro ao atualizar duração do agendamento no backend')
+      }
+      alert('Duração do agendamento atualizada com sucesso!')
+      loadAppointments()
+    } catch (error) {
+      console.error('Erro ao redimensionar agendamento:', error)
+      alert('Erro ao redimensionar agendamento. Revertendo...')
+      resizeInfo.revert()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -437,7 +528,7 @@ function App( ) {
                       id="address_zip_code"
                       value={newPatient.address_zip_code}
                       onChange={(e) => setNewPatient({ ...newPatient, address_zip_code: e.target.value })}
-                      onBlur={(e) => fetchAddressByZipCode(e.target.value)} // Busca o endereço ao sair do campo
+                      onBlur={(e) => fetchAddressByZipCode(e.target.value)}
                       placeholder="00000-000"
                     />
                   </div>
@@ -566,43 +657,28 @@ function App( ) {
                 </Button>
               </CardHeader>
               <CardContent>
-                {appointments.length === 0 ? (
-                  <p className="text-gray-500">Nenhuma consulta agendada.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {appointments.map((appointment) => (
-                      <div key={appointment.id} className="flex justify-between items-center p-3 border rounded-lg">
-                        <div>
-                          <h3 className="font-medium">{patient.name}</h3>
-                          <p className="text-sm text-gray-500">
-                            {new Date(appointment.start_time).toLocaleString('pt-BR')} -
-                            {new Date(appointment.end_time).toLocaleString('pt-BR')}
-                          </p>
-                          {appointment.treatment_type && (
-                            <p className="text-sm text-blue-600">Tipo: {appointment.treatment_type}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            appointment.status === 'Confirmado' ? 'bg-green-100 text-green-800' :
-                            appointment.status === 'Agendado' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {appointment.status}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => sendConfirmation(appointment.id)}
-                          >
-                            <MessageSquare className="w-4 h-4 mr-1" />
-                            Confirmar
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="fullcalendar-container">
+                  <FullCalendar
+                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin]}
+                    initialView="dayGridMonth"
+                    locale={ptBrLocale}
+                    headerToolbar={{
+                      left: 'prev,next today',
+                      center: 'title',
+                      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                    }}
+                    editable={true}
+                    selectable={true}
+                    selectMirror={true}
+                    dayMaxEvents={true}
+                    weekends={true}
+                    events={calendarEvents}
+                    dateClick={handleDateClick}
+                    eventClick={handleEventClick}
+                    eventDrop={handleEventDrop}
+                    eventResize={handleEventResize}
+                  />
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -748,72 +824,4 @@ function App( ) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {newAppointment.start_time ? (
-                      format(newAppointment.start_time, "PPP", { locale: ptBR })
-                    ) : (
-                      <span>Selecione uma data</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={newAppointment.start_time}
-                    onSelect={(date) => setNewAppointment({ ...newAppointment, start_time: date, end_time: date })}
-                    initialFocus
-                    locale={ptBR}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {/* Seleção de Horário */}
-            <div className="space-y-2">
-              <Label htmlFor="time">Horário da Consulta</Label>
-              <Input
-                id="time"
-                type="time"
-                value={newAppointment.start_time ? format(newAppointment.start_time, "HH:mm") : ""}
-                onChange={(e) => {
-                  const [hours, minutes] = e.target.value.split(':');
-                  const date = newAppointment.start_time || new Date();
-                  date.setHours(parseInt(hours, 10));
-                  date.setMinutes(parseInt(minutes, 10));
-                  setNewAppointment({ ...newAppointment, start_time: date, end_time: date });
-                }}
-              />
-            </div>
-
-            {/* Tipo de Tratamento (assunto) */}
-            <div className="space-y-2">
-              <Label htmlFor="treatment_type">Tipo de Tratamento / Assunto</Label>
-              <Input
-                id="treatment_type"
-                value={newAppointment.treatment_type}
-                onChange={(e) => setNewAppointment({ ...newAppointment, treatment_type: e.target.value })}
-                placeholder="Ex: Limpeza, Restauração, Extração, Avaliação"
-              />
-            </div>
-
-            {/* Notas (opcional) */}
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notas</Label>
-              <Input
-                id="notes"
-                value={newAppointment.notes}
-                onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
-                placeholder="Observações sobre o agendamento"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
-            <Button onClick={addAppointment}>Salvar Agendamento</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
-
-export default App
+                    {
