@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FullCalendar */
-@import url("@fullcalendar/react/main.css");
-@import url("@fullcalendar/daygrid/main.css");
-@import url("@fullcalendar/timegrid/main.css");
-
 @layer base {
   :root {
     --background: 0 0% 100%;
