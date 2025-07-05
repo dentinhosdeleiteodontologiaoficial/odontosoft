@@ -225,6 +225,7 @@ function App( ) {
     }
   }
 
+  
   useEffect(() => {
     loadPatients()
     loadAppointments()
