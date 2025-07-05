@@ -824,4 +824,72 @@ function App( ) {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {
+                       {newAppointment.start_time ? (
+                      format(newAppointment.start_time, "PPP", { locale: ptBR })
+                    ) : (
+                      <span>Selecione uma data</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={newAppointment.start_time}
+                    onSelect={(date) => setNewAppointment({ ...newAppointment, start_time: date, end_time: date })}
+                    initialFocus
+                    locale={ptBR}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Seleção de Horário */}
+            <div className="space-y-2">
+              <Label htmlFor="time">Horário da Consulta</Label>
+              <Input
+                id="time"
+                type="time"
+                value={newAppointment.start_time ? format(newAppointment.start_time, "HH:mm") : ""}
+                onChange={(e) => {
+                  const [hours, minutes] = e.target.value.split(':');
+                  const date = newAppointment.start_time || new Date();
+                  date.setHours(parseInt(hours, 10));
+                  date.setMinutes(parseInt(minutes, 10));
+                  setNewAppointment({ ...newAppointment, start_time: date, end_time: date });
+                }}
+              />
+            </div>
+
+            {/* Tipo de Tratamento (assunto) */}
+            <div className="space-y-2">
+              <Label htmlFor="treatment_type">Tipo de Tratamento / Assunto</Label>
+              <Input
+                id="treatment_type"
+                value={newAppointment.treatment_type}
+                onChange={(e) => setNewAppointment({ ...newAppointment, treatment_type: e.target.value })}
+                placeholder="Ex: Limpeza, Restauração, Extração, Avaliação"
+              />
+            </div>
+
+            {/* Notas (opcional) */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas</Label>
+              <Input
+                id="notes"
+                value={newAppointment.notes}
+                onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
+                placeholder="Observações sobre o agendamento"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
+            <Button onClick={addAppointment}>Salvar Agendamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+export default App
