@@ -1,3 +1,7 @@
+@import '@fullcalendar/react/main.css';
+@import '@fullcalendar/daygrid/main.css';
+@import '@fullcalendar/timegrid/main.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -76,6 +80,3 @@
 }
 
 /* FullCalendar */
-@import '@fullcalendar/react/main.css';
-@import '@fullcalendar/daygrid/main.css';
-@import '@fullcalendar/timegrid/main.css';
