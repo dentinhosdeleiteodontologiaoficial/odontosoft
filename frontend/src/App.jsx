@@ -8,7 +8,7 @@ import { Calendar, Users, DollarSign, FileText, MessageSquare, Plus } from 'luci
 import './App.css'
 
 // URL do backend - ajuste conforme necessário
-const API_BASE_URL = 'https://5000-ix7pxn4xgjiujmuz4q11c-7dcf92b7.manusvm.computer'
+const API_BASE_URL = 'https://odontosoft-backend.onrender.com/'
 
 function App() {
   const [patients, setPatients] = useState([])
