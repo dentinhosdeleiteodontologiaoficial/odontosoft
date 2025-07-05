@@ -810,12 +810,14 @@ function App( ) {
             </div>
           </div>
           <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
-          <Button onClick={addAppointment}>Salvar Agendamento</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  </div>
-)
+            <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
+                        <Button onClick={addAppointment}>Salvar Agendamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
 
+export default App
 
