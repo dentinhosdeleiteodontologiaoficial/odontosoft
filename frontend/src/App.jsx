@@ -225,7 +225,6 @@ function App( ) {
     }
   }
 
-  
   useEffect(() => {
     loadPatients()
     loadAppointments()
@@ -478,4 +477,335 @@ function App( ) {
                     <Label htmlFor="address_neighborhood">Bairro</Label>
                     <Input
                       id="address_neighborhood"
-                      value={newPatient.address_
+                      value={newPatient.address_neighborhood}
+                      onChange={(e) => setNewPatient({...newPatient, address_neighborhood: e.target.value})}
+                      placeholder="Bairro"
+                    />
+                  </div>
+                  {/* Novo campo: Cidade */}
+                  <div className="space-y-2">
+                    <Label htmlFor="address_city">Cidade</Label>
+                    <Input
+                      id="address_city"
+                      value={newPatient.address_city}
+                      onChange={(e) => setNewPatient({...newPatient, address_city: e.target.value})}
+                      placeholder="Cidade"
+                    />
+                  </div>
+                  {/* Novo campo: Estado */}
+                  <div className="space-y-2">
+                    <Label htmlFor="address_state">Estado (UF)</Label>
+                    <Input
+                      id="address_state"
+                      value={newPatient.address_state}
+                      onChange={(e) => setNewPatient({...newPatient, address_state: e.target.value})}
+                      placeholder="UF"
+                    />
+                  </div>
+                </div>
+                <Button onClick={addPatient} className="w-full md:w-auto">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Cadastrar Paciente
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Lista de Pacientes</CardTitle>
+                <CardDescription>Todos os pacientes cadastrados</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {patients.length === 0 ? (
+                  <p className="text-gray-500">Nenhum paciente cadastrado ainda.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {patients.map((patient) => (
+                      <div key={patient.id} className="flex justify-between items-center p-3 border rounded-lg">
+                        <div>
+                          <h3 className="font-medium">{patient.name}</h3>
+                          <p className="text-sm text-gray-500">
+                            {patient.email}
+                          </p>
+                          {patient.responsible_name && (
+                            <p className="text-sm text-blue-600">
+                              Responsável: {patient.responsible_name} • {patient.responsible_phone}
+                              {patient.responsible_cpf && ` • CPF: ${patient.responsible_cpf}`}
+                            </p>
+                          )}
+                          {patient.address_street && (
+                            <p className="text-sm text-gray-500">
+                              Endereço: {patient.address_street}, {patient.address_number}
+                              {patient.address_complement && `, ${patient.address_complement}`}
+                              {patient.address_neighborhood && ` - ${patient.address_neighborhood}`}
+                              {patient.address_city && ` - ${patient.address_city}/${patient.address_state}`}
+                              {patient.address_zip_code && ` - CEP: ${patient.address_zip_code}`}
+                            </p>
+                          )}
+                        </div>
+                        <Button variant="outline" size="sm">
+                          Ver Detalhes
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="appointments" className="space-y-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Agenda de Consultas</CardTitle>
+                  <CardDescription>Gerencie seus agendamentos</CardDescription>
+                </div>
+                <Button onClick={() => setIsAppointmentModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Agendamento
+                </Button>
+              </CardHeader>
+              <CardContent>
+                {appointments.length === 0 ? (
+                  <p className="text-gray-500">Nenhuma consulta agendada.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {appointments.map((appointment) => (
+                      <div key={appointment.id} className="flex justify-between items-center p-3 border rounded-lg">
+                        <div>
+                          <h3 className="font-medium">{patient.name}</h3>
+                          <p className="text-sm text-gray-500">
+                            {new Date(appointment.start_time).toLocaleString('pt-BR')} - 
+                            {new Date(appointment.end_time).toLocaleString('pt-BR')}
+                          </p>
+                          {appointment.treatment_type && (
+                            <p className="text-sm text-blue-600">Tipo: {appointment.treatment_type}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            appointment.status === 'Confirmado' ? 'bg-green-100 text-green-800' :
+                            appointment.status === 'Agendado' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {appointment.status}
+                          </span>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => sendConfirmation(appointment.id)}
+                          >
+                            <MessageSquare className="w-4 h-4 mr-1" />
+                            Confirmar
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="financial" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Controle Financeiro</CardTitle>
+                <CardDescription>Orçamentos, pagamentos e faturamento</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Orçamentos</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{budgets.length}</div>
+                      <p className="text-sm text-gray-500">Total de orçamentos</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">A Receber</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">R$ 0,00</div>
+                      <p className="text-sm text-gray-500">Pendente</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Recebido</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">R$ 0,00</div>
+                      <p className="text-sm text-gray-500">Este mês</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="whatsapp" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Integração WhatsApp</CardTitle>
+                <CardDescription>Gerencie mensagens e notificações automáticas</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Confirmações Automáticas</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Envie confirmações de consulta automaticamente 24h antes do agendamento.
+                      </p>
+                      <Button className="w-full">
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Configurar Confirmações
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg">Lembretes de Retorno</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600 mb-4">
+                        Configure lembretes automáticos para retornos e revisões.
+                      </p>
+                      <Button className="w-full">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Configurar Lembretes
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Status da Integração</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <span className="text-sm">Bot WhatsApp conectado e funcionando</span>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Seu bot está pronto para enviar mensagens automáticas.
+                    </p>
+                  </CardContent>
+                </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Modal de Novo Agendamento */}
+      <Dialog open={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Novo Agendamento</DialogTitle>
+            <DialogDescription>
+              Preencha os detalhes para agendar uma nova consulta.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Seleção de Paciente */}
+            <div className="space-y-2">
+              <Label htmlFor="patient">Paciente</Label>
+              <Select
+                onValueChange={(value) => setNewAppointment({ ...newAppointment, patient_id: value })}
+                value={newAppointment.patient_id}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione um paciente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {patients.map((patient) => (
+                    <SelectItem key={patient.id} value={patient.id.toString()}>
+                      {patient.name} ({patient.responsible_name})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Seleção de Data */}
+            <div className="space-y-2">
+              <Label htmlFor="date">Data da Consulta</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !newAppointment.start_time && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {newAppointment.start_time ? (
+                      format(newAppointment.start_time, "PPP", { locale: ptBR })
+                    ) : (
+                      <span>Selecione uma data</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={newAppointment.start_time}
+                    onSelect={(date) => setNewAppointment({ ...newAppointment, start_time: date, end_time: date })}
+                    initialFocus
+                    locale={ptBR}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Seleção de Horário */}
+            <div className="space-y-2">
+              <Label htmlFor="time">Horário da Consulta</Label>
+              <Input
+                id="time"
+                type="time"
+                value={newAppointment.start_time ? format(newAppointment.start_time, "HH:mm") : ""}
+                onChange={(e) => {
+                  const [hours, minutes] = e.target.value.split(':');
+                  const date = newAppointment.start_time || new Date();
+                  date.setHours(parseInt(hours, 10));
+                  date.setMinutes(parseInt(minutes, 10));
+                  setNewAppointment({ ...newAppointment, start_time: date, end_time: date });
+                }}
+              />
+            </div>
+
+            {/* Tipo de Tratamento (assunto) */}
+            <div className="space-y-2">
+              <Label htmlFor="treatment_type">Tipo de Tratamento / Assunto</Label>
+              <Input
+                id="treatment_type"
+                value={newAppointment.treatment_type}
+                onChange={(e) => setNewAppointment({ ...newAppointment, treatment_type: e.target.value })}
+                placeholder="Ex: Limpeza, Restauração, Extração, Avaliação"
+              />
+            </div>
+
+            {/* Notas (opcional) */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas</Label>
+              <Input
+                id="notes"
+                value={newAppointment.notes}
+                onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
+                placeholder="Observações sobre o agendamento"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() =>
