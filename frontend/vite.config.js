@@ -22,4 +22,18 @@ export default defineConfig({
       '@fullcalendar/core/locales/pt-br',
     ],
   },
+  build: {
+    rollupOptions: {
+      external: [
+        // Marca os módulos do FullCalendar como externos para o Rollup
+        // Isso pode forçar o Rollup a incluí-los no bundle final
+        '@fullcalendar/react',
+        '@fullcalendar/daygrid',
+        '@fullcalendar/timegrid',
+        '@fullcalendar/interaction',
+        '@fullcalendar/list',
+        '@fullcalendar/core/locales/pt-br',
+      ],
+    },
+  },
 })
