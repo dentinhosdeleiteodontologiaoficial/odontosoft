@@ -8,9 +8,13 @@ import { Calendar, Users, DollarSign, FileText, MessageSquare, Plus } from 'luci
 import './App.css'
 
 // URL do backend - ajuste conforme necessário
-const API_BASE_URL = 'https://odontosoft-backend.onrender.com/'
+// Certifique-se de que esta URL está apontando para o seu backend no Render
+const API_BASE_URL = 'https://odontosoft-backend.onrender.com' // Exemplo: use a sua URL real
 
-function App() {
+function App( ) {
+  // Adicione um estado para controlar a aba ativa
+  const [activeTab, setActiveTab] = useState('dashboard') // Estado inicial é 'dashboard'
+
   const [patients, setPatients] = useState([])
   const [appointments, setAppointments] = useState([])
   const [budgets, setBudgets] = useState([])
@@ -43,6 +47,10 @@ function App() {
           responsible_phone: ''
         })
         loadPatients() // Recarregar lista de pacientes
+      } else {
+        // Se a resposta não for OK, tente ler a mensagem de erro do backend
+        const errorData = await response.json();
+        alert(`Erro ao adicionar paciente: ${errorData.message || response.statusText}`);
       }
     } catch (error) {
       console.error('Erro ao adicionar paciente:', error)
@@ -99,6 +107,9 @@ function App() {
       if (response.ok) {
         const result = await response.json()
         alert('Confirmação enviada via WhatsApp!')
+      } else {
+        const errorData = await response.json();
+        alert(`Erro ao enviar confirmação: ${errorData.message || response.statusText}`);
       }
     } catch (error) {
       console.error('Erro ao enviar confirmação:', error)
@@ -121,7 +132,8 @@ function App() {
           <p className="text-gray-600">Sistema de Gestão Odontológica - Odontopediatria</p>
         </header>
 
-        <Tabs defaultValue="dashboard" className="w-full">
+        {/* Adicione as propriedades value e onValueChange para controlar a aba */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
@@ -226,15 +238,30 @@ function App() {
                   <CardTitle>Ações Rápidas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Button className="w-full justify-start" variant="outline">
+                  {/* Adicione onClick para mudar a aba para 'appointments' */}
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={() => setActiveTab('appointments')} 
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Agendamento
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  {/* Adicione onClick para mudar a aba para 'financial' */}
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={() => setActiveTab('financial')}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Orçamento
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
+                  {/* Adicione onClick para mudar a aba para 'whatsapp' */}
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={() => setActiveTab('whatsapp')}
+                  >
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Enviar Lembretes
                   </Button>
@@ -489,4 +516,3 @@ function App() {
 }
 
 export default App
-
