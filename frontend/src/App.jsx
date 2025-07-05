@@ -804,17 +804,14 @@ function App( ) {
                 value={newAppointment.notes}
                 onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
                 placeholder="Observações sobre o agendamento"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
-            <Button onClick={addAppointment}>Salvar Agendamento</Button>
-          </DialogFooter>
-        </DialogContent>
-      
-</Dialog>  <-- Adicione esta linha
-</div>      <-- Adicione esta linha
-  )
-}
-export default App
+
+          </Input>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
+        <Button onClick={addAppointment}>Salvar Agendamento</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>  
+</div>     
