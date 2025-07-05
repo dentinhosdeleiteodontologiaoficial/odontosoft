@@ -813,3 +813,8 @@ function App( ) {
           </DialogFooter>
         </DialogContent>
       
+</Dialog>  <-- Adicione esta linha
+</div>      <-- Adicione esta linha
+  )
+}
+export default App
