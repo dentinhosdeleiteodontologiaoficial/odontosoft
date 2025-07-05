@@ -2,33 +2,22 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-// Importe os plugins do PostCSS diretamente
-import tailwindcss from 'tailwindcss'
-import autoprefixer from 'autoprefixer'
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react( )],
-  css: {
-    postcss: {
-      plugins: [
-        tailwindcss(), // Chame como função
-        autoprefixer(), // Chame como função
-      ],
-    },
-  },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      // Adiciona aliases para os módulos do FullCalendar
+      // Isso ajuda o Vite a encontrar os módulos corretamente
+      '@fullcalendar/react': '@fullcalendar/react',
+      '@fullcalendar/daygrid': '@fullcalendar/daygrid',
+      '@fullcalendar/timegrid': '@fullcalendar/timegrid',
+      '@fullcalendar/interaction': '@fullcalendar/interaction',
+      '@fullcalendar/list': '@fullcalendar/list',
+      '@fullcalendar/core/locales/pt-br': '@fullcalendar/core/locales/pt-br',
+      
+      // Adiciona alias para o caminho base do projeto (o @/)
+      '@': path.resolve(__dirname, './src'),
     },
   },
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-    allowedHosts: [
-      'all',
-      '5173-ix7pxn4xgjiujmuz4q11c-7dcf92b7.manusvm.computer',
-      '.manusvm.computer'
-    ]
-  }
 })
