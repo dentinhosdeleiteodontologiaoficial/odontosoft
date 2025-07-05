@@ -808,4 +808,8 @@ function App( ) {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() =>
+            <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
+            <Button onClick={addAppointment}>Salvar Agendamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      
