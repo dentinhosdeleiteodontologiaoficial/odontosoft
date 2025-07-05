@@ -7,13 +7,20 @@ import { Label } from '@/components/ui/label.jsx'
 import { Calendar, Users, DollarSign, FileText, MessageSquare, Plus } from 'lucide-react'
 import './App.css'
 
+// Importações adicionais para o modal de agendamento
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog.jsx'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.jsx'
+import { format } from 'date-fns'
+import { ptBR } from 'date-fns/locale' // Importe o locale para português do Brasil
+import { cn } from '@/lib/utils.js' // Importe a função cn para classes condicionais
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
+import { Calendar as CalendarIcon } from 'lucide-react' // Renomeie para evitar conflito com Calendar do shadcn/ui
+
 // URL do backend - ajuste conforme necessário
-// Certifique-se de que esta URL está apontando para o seu backend no Render
-const API_BASE_URL = 'https://odontosoft-backend.onrender.com' // Exemplo: use a sua URL real
+const API_BASE_URL = 'https://odontosoft-backend.onrender.com' // Use a sua URL real do backend no Render
 
 function App( ) {
-  // Adicione um estado para controlar a aba ativa
-  const [activeTab, setActiveTab] = useState('dashboard') // Estado inicial é 'dashboard'
+  const [activeTab, setActiveTab] = useState('dashboard')
 
   const [patients, setPatients] = useState([])
   const [appointments, setAppointments] = useState([])
@@ -24,6 +31,16 @@ function App( ) {
     email: '',
     responsible_name: '',
     responsible_phone: ''
+  })
+
+  // Estados para o modal de agendamento
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false)
+  const [newAppointment, setNewAppointment] = useState({
+    patient_id: '',
+    start_time: null, // Usaremos Date objects aqui
+    end_time: null,   // Usaremos Date objects aqui
+    notes: '',
+    treatment_type: '' // Campo para o assunto/tipo de tratamento
   })
 
   const addPatient = async () => {
@@ -114,6 +131,52 @@ function App( ) {
     } catch (error) {
       console.error('Erro ao enviar confirmação:', error)
       alert('Erro ao enviar confirmação')
+    }
+  }
+
+  // Função para adicionar agendamento
+  const addAppointment = async () => {
+    try {
+      // Validação básica
+      if (!newAppointment.patient_id || !newAppointment.start_time || !newAppointment.end_time) {
+        alert('Por favor, preencha todos os campos obrigatórios: Paciente, Data e Horário.')
+        return
+      }
+
+      // Formatar as datas para ISO string antes de enviar para o backend
+      const formattedAppointment = {
+        ...newAppointment,
+        start_time: newAppointment.start_time.toISOString(),
+        end_time: newAppointment.end_time.toISOString(),
+      }
+
+      const response = await fetch(`${API_BASE_URL}/appointments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formattedAppointment),
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        alert('Agendamento adicionado com sucesso!')
+        setIsAppointmentModalOpen(false) // Fechar modal
+        setNewAppointment({ // Resetar formulário
+          patient_id: '',
+          start_time: null,
+          end_time: null,
+          notes: '',
+          treatment_type: ''
+        })
+        loadAppointments() // Recarregar lista de agendamentos
+      } else {
+        const errorData = await response.json();
+        alert(`Erro ao adicionar agendamento: ${errorData.message || response.statusText}`);
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar agendamento:', error)
+      alert('Erro ao adicionar agendamento')
     }
   }
 
@@ -238,16 +301,19 @@ function App( ) {
                   <CardTitle>Ações Rápidas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  {/* Adicione onClick para mudar a aba para 'appointments' */}
+                  {/* Botão Novo Agendamento - abre o modal */}
                   <Button 
                     className="w-full justify-start" 
                     variant="outline"
-                    onClick={() => setActiveTab('appointments')} 
+                    onClick={() => {
+                      setActiveTab('appointments'); // Opcional: muda para a aba de agendamentos
+                      setIsAppointmentModalOpen(true); // Abre o modal
+                    }} 
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Agendamento
                   </Button>
-                  {/* Adicione onClick para mudar a aba para 'financial' */}
+                  {/* Botão Novo Orçamento - apenas muda a aba por enquanto */}
                   <Button 
                     className="w-full justify-start" 
                     variant="outline"
@@ -256,7 +322,7 @@ function App( ) {
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Orçamento
                   </Button>
-                  {/* Adicione onClick para mudar a aba para 'whatsapp' */}
+                  {/* Botão Enviar Lembretes - apenas muda a aba por enquanto */}
                   <Button 
                     className="w-full justify-start" 
                     variant="outline"
@@ -368,9 +434,16 @@ function App( ) {
 
           <TabsContent value="appointments" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Agenda de Consultas</CardTitle>
-                <CardDescription>Gerencie seus agendamentos</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Agenda de Consultas</CardTitle>
+                  <CardDescription>Gerencie seus agendamentos</CardDescription>
+                </div>
+                {/* Botão Novo Agendamento na aba Agenda - abre o modal */}
+                <Button onClick={() => setIsAppointmentModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Novo Agendamento
+                </Button>
               </CardHeader>
               <CardContent>
                 {appointments.length === 0 ? (
@@ -380,7 +453,7 @@ function App( ) {
                     {appointments.map((appointment) => (
                       <div key={appointment.id} className="flex justify-between items-center p-3 border rounded-lg">
                         <div>
-                          <h3 className="font-medium">{appointment.patient_name}</h3>
+                          <h3 className="font-medium">{patient.name}</h3>
                           <p className="text-sm text-gray-500">
                             {new Date(appointment.start_time).toLocaleString('pt-BR')} - 
                             {new Date(appointment.end_time).toLocaleString('pt-BR')}
@@ -511,6 +584,114 @@ function App( ) {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Modal de Novo Agendamento */}
+      <Dialog open={isAppointmentModalOpen} onOpenChange={setIsAppointmentModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Novo Agendamento</DialogTitle>
+            <DialogDescription>
+              Preencha os detalhes para agendar uma nova consulta.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Seleção de Paciente */}
+            <div className="space-y-2">
+              <Label htmlFor="patient">Paciente</Label>
+              <Select
+                onValueChange={(value) => setNewAppointment({ ...newAppointment, patient_id: value })}
+                value={newAppointment.patient_id}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione um paciente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {patients.map((patient) => (
+                    <SelectItem key={patient.id} value={patient.id.toString()}>
+                      {patient.name} ({patient.responsible_name})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Seleção de Data */}
+            <div className="space-y-2">
+              <Label htmlFor="date">Data da Consulta</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !newAppointment.start_time && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {newAppointment.start_time ? (
+                      format(newAppointment.start_time, "PPP", { locale: ptBR })
+                    ) : (
+                      <span>Selecione uma data</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={newAppointment.start_time}
+                    onSelect={(date) => setNewAppointment({ ...newAppointment, start_time: date, end_time: date })} // Define a data de início e fim
+                    initialFocus
+                    locale={ptBR} // Define o locale para português do Brasil
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Seleção de Horário */}
+            <div className="space-y-2">
+              <Label htmlFor="time">Horário da Consulta</Label>
+              <Input
+                id="time"
+                type="time"
+                value={newAppointment.start_time ? format(newAppointment.start_time, "HH:mm") : ""}
+                onChange={(e) => {
+                  const [hours, minutes] = e.target.value.split(':');
+                  const date = newAppointment.start_time || new Date(); // Usa a data selecionada ou a data atual
+                  date.setHours(parseInt(hours, 10));
+                  date.setMinutes(parseInt(minutes, 10));
+                  setNewAppointment({ ...newAppointment, start_time: date, end_time: date }); // Define a data de início e fim
+                }}
+              />
+            </div>
+
+            {/* Tipo de Tratamento (assunto) */}
+            <div className="space-y-2">
+              <Label htmlFor="treatment_type">Tipo de Tratamento / Assunto</Label>
+              <Input
+                id="treatment_type"
+                value={newAppointment.treatment_type}
+                onChange={(e) => setNewAppointment({ ...newAppointment, treatment_type: e.target.value })}
+                placeholder="Ex: Limpeza, Restauração, Extração, Avaliação"
+              />
+            </div>
+
+            {/* Notas (opcional) */}
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notas</Label>
+              <Input
+                id="notes"
+                value={newAppointment.notes}
+                onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
+                placeholder="Observações sobre o agendamento"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
+            <Button onClick={addAppointment}>Salvar Agendamento</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
