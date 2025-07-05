@@ -27,10 +27,10 @@ function App( ) {
   const [patients, setPatients] = useState([])
   const [appointments, setAppointments] = useState([])
   const [budgets, setBudgets] = useState([])
-  
+
   // Estado para o novo paciente com os novos campos
-  const [newPatient, setNewPatient] = useState({ 
-    name: '', 
+  const [newPatient, setNewPatient] = useState({
+    name: '',
     email: '',
     responsible_name: '',
     responsible_phone: '',
@@ -94,12 +94,12 @@ function App( ) {
         },
         body: JSON.stringify(newPatient),
       })
-      
+
       if (response.ok) {
         const result = await response.json()
         alert('Paciente adicionado com sucesso!')
         setNewPatient({ // Resetar formulário
-          name: '', 
+          name: '',
           email: '',
           responsible_name: '',
           responsible_phone: '',
@@ -168,7 +168,7 @@ function App( ) {
         },
         body: JSON.stringify({ appointment_id: appointmentId }),
       })
-      
+
       if (response.ok) {
         const result = await response.json()
         alert('Confirmação enviada via WhatsApp!')
@@ -202,7 +202,7 @@ function App( ) {
         },
         body: JSON.stringify(formattedAppointment),
       })
-      
+
       if (response.ok) {
         const result = await response.json()
         alert('Agendamento adicionado com sucesso!')
@@ -344,27 +344,27 @@ function App( ) {
                   <CardTitle>Ações Rápidas</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <Button 
-                    className="w-full justify-start" 
+                  <Button
+                    className="w-full justify-start"
                     variant="outline"
                     onClick={() => {
                       setActiveTab('appointments');
                       setIsAppointmentModalOpen(true);
-                    }} 
+                    }}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Agendamento
                   </Button>
-                  <Button 
-                    className="w-full justify-start" 
+                  <Button
+                    className="w-full justify-start"
                     variant="outline"
                     onClick={() => setActiveTab('financial')}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Novo Orçamento
                   </Button>
-                  <Button 
-                    className="w-full justify-start" 
+                  <Button
+                    className="w-full justify-start"
                     variant="outline"
                     onClick={() => setActiveTab('whatsapp')}
                   >
@@ -389,7 +389,7 @@ function App( ) {
                     <Input
                       id="name"
                       value={newPatient.name}
-                      onChange={(e) => setNewPatient({...newPatient, name: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, name: e.target.value })}
                       placeholder="Digite o nome da criança"
                     />
                   </div>
@@ -399,7 +399,7 @@ function App( ) {
                       id="email"
                       type="email"
                       value={newPatient.email}
-                      onChange={(e) => setNewPatient({...newPatient, email: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, email: e.target.value })}
                       placeholder="email@exemplo.com"
                     />
                   </div>
@@ -408,7 +408,7 @@ function App( ) {
                     <Input
                       id="responsible_name"
                       value={newPatient.responsible_name}
-                      onChange={(e) => setNewPatient({...newPatient, responsible_name: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, responsible_name: e.target.value })}
                       placeholder="Nome do pai/mãe/responsável"
                     />
                   </div>
@@ -417,7 +417,7 @@ function App( ) {
                     <Input
                       id="responsible_phone"
                       value={newPatient.responsible_phone}
-                      onChange={(e) => setNewPatient({...newPatient, responsible_phone: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, responsible_phone: e.target.value })}
                       placeholder="(11) 99999-9999"
                     />
                   </div>
@@ -427,7 +427,7 @@ function App( ) {
                     <Input
                       id="responsible_cpf"
                       value={newPatient.responsible_cpf}
-                      onChange={(e) => setNewPatient({...newPatient, responsible_cpf: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, responsible_cpf: e.target.value })}
                       placeholder="000.000.000-00"
                     />
                   </div>
@@ -437,7 +437,7 @@ function App( ) {
                     <Input
                       id="address_zip_code"
                       value={newPatient.address_zip_code}
-                      onChange={(e) => setNewPatient({...newPatient, address_zip_code: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, address_zip_code: e.target.value })}
                       onBlur={(e) => fetchAddressByZipCode(e.target.value)} // Busca o endereço ao sair do campo
                       placeholder="00000-000"
                     />
@@ -448,7 +448,7 @@ function App( ) {
                     <Input
                       id="address_street"
                       value={newPatient.address_street}
-                      onChange={(e) => setNewPatient({...newPatient, address_street: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, address_street: e.target.value })}
                       placeholder="Rua, Avenida, etc."
                     />
                   </div>
@@ -458,7 +458,7 @@ function App( ) {
                     <Input
                       id="address_number"
                       value={newPatient.address_number}
-                      onChange={(e) => setNewPatient({...newPatient, address_number: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, address_number: e.target.value })}
                       placeholder="123"
                     />
                   </div>
@@ -468,7 +468,7 @@ function App( ) {
                     <Input
                       id="address_complement"
                       value={newPatient.address_complement}
-                      onChange={(e) => setNewPatient({...newPatient, address_complement: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, address_complement: e.target.value })}
                       placeholder="Apto 101, Bloco B"
                     />
                   </div>
@@ -478,7 +478,7 @@ function App( ) {
                     <Input
                       id="address_neighborhood"
                       value={newPatient.address_neighborhood}
-                      onChange={(e) => setNewPatient({...newPatient, address_neighborhood: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, address_neighborhood: e.target.value })}
                       placeholder="Bairro"
                     />
                   </div>
@@ -488,7 +488,7 @@ function App( ) {
                     <Input
                       id="address_city"
                       value={newPatient.address_city}
-                      onChange={(e) => setNewPatient({...newPatient, address_city: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, address_city: e.target.value })}
                       placeholder="Cidade"
                     />
                   </div>
@@ -498,7 +498,7 @@ function App( ) {
                     <Input
                       id="address_state"
                       value={newPatient.address_state}
-                      onChange={(e) => setNewPatient({...newPatient, address_state: e.target.value})}
+                      onChange={(e) => setNewPatient({ ...newPatient, address_state: e.target.value })}
                       placeholder="UF"
                     />
                   </div>
@@ -576,7 +576,7 @@ function App( ) {
                         <div>
                           <h3 className="font-medium">{patient.name}</h3>
                           <p className="text-sm text-gray-500">
-                            {new Date(appointment.start_time).toLocaleString('pt-BR')} - 
+                            {new Date(appointment.start_time).toLocaleString('pt-BR')} -
                             {new Date(appointment.end_time).toLocaleString('pt-BR')}
                           </p>
                           {appointment.treatment_type && (
@@ -591,8 +591,8 @@ function App( ) {
                           }`}>
                             {appointment.status}
                           </span>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => sendConfirmation(appointment.id)}
                           >
@@ -685,7 +685,7 @@ function App( ) {
                     </CardContent>
                   </Card>
                 </div>
-                
+
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">Status da Integração</CardTitle>
@@ -804,18 +804,16 @@ function App( ) {
                 value={newAppointment.notes}
                 onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
                 placeholder="Observações sobre o agendamento"
-
-          </Input>
-        </div>
-      </div>
-      <DialogFooter>
-        <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
-        <Button onClick={addAppointment}>Salvar Agendamento</Button>
-    
-              </DialogFooter>
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAppointmentModalOpen(false)}>Cancelar</Button>
+            <Button onClick={addAppointment}>Salvar Agendamento</Button>
+          </DialogFooter>
         </DialogContent>
-      </Dialog> // <-- ESTA LINHA ESTÁ FALTANDO
-    </div> // <-- ESTA LINHA ESTÁ FALTANDO
+      </Dialog>
+    </div>
   )
 }
 
