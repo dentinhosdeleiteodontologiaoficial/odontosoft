@@ -74,3 +74,7 @@
     @apply bg-background text-foreground;
   }
 }
+/* FullCalendar */
+@import '@fullcalendar/react/main.css'; /* Estilos principais do FullCalendar */
+@import '@fullcalendar/daygrid/main.css'; /* Estilos para a visualização de mês */
+@import '@fullcalendar/timegrid/main.css'; /* Estilos para as visualizações de semana e dia */
