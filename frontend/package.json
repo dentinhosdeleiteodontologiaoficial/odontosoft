@@ -23,8 +23,8 @@
     "react": "^18.2.0",
     "react-day-picker": "^8.10.0",
     "react-dom": "^18.2.0",
-    "tailwind-merge": "^2.2.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwind-merge": "^2.2.2"
+    // "tailwindcss-animate": "^1.0.7" <-- Removido
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
